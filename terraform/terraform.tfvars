@@ -1,0 +1,11 @@
+aws_region    = "us-east-1"
+environment   = "dev"
+project_name  = "course-management"
+instance_type = "t3.micro"
+min_size      = 2
+max_size      = 5
+desired_capacity        = 2
+target_cpu_utilization  = 60
+health_check_path       = "/health"
+app_port                = 8000
+custom_ami_id          = "ami-03075e0951b0dd43d"

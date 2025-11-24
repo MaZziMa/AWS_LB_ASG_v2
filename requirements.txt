@@ -1,0 +1,13 @@
+# Core dependencies - Fast install compatible with Python 3.14
+fastapi
+uvicorn[standard]
+boto3
+httpx
+
+# Testing
+pytest
+pytest-cov
+pytest-asyncio
+
+# Load Testing
+locust
