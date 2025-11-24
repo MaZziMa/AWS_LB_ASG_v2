@@ -5,6 +5,8 @@ import boto3
 from decimal import Decimal
 import os
 import sys
+from typing import Any
+dynamodb: Any = boto3.resource("dynamodb", region_name=os.getenv("AWS_REGION", "us-east-1"))
 from datetime import datetime
 import uuid
 
