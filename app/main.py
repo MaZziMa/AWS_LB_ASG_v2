@@ -14,6 +14,7 @@ from typing import List, Optional, Any
 from pydantic import BaseModel
 from datetime import datetime
 from time import perf_counter
+from fastapi import APIRouter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +26,15 @@ app = FastAPI(
     description="Learning platform with AWS Load Balancer and Auto Scaling",
     version="1.0.0",
 )
+
+# Include Bedrock/ops router if available
+try:
+    from app.ops_bedrock import router as ops_bedrock_router
+
+    app.include_router(ops_bedrock_router, prefix="", tags=["ops"])
+except Exception:
+    # optional dependency; fail gracefully if module missing
+    logger.info("app.ops_bedrock not available; skipping ops router")
 
 # CORS middleware
 app.add_middleware(

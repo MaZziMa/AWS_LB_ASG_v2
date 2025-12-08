@@ -11,3 +11,4 @@ pytest-asyncio
 
 # Load Testing
 locust
+openai

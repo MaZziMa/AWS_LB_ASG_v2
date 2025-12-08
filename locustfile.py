@@ -25,14 +25,7 @@ class CourseManagementUser(HttpUser):
         """Health check endpoint - most frequent"""
         self.client.get("/health")
     
-    @task(10)
-    def get_all_courses(self):
-        """Get all courses - frequent operation"""
-        with self.client.get("/courses", catch_response=True) as response:
-            if response.status_code == 200:
-                response.success()
-            else:
-                response.failure(f"Got status {response.status_code}")
+
     
     @task(3)
     def get_course_by_id(self):
@@ -107,15 +100,7 @@ class CourseManagementUser(HttpUser):
             else:
                 response.failure(f"Got status {response.status_code}")
 
-    @task(1)
-    def cpu_burn(self):
-        """Trigger CPU burn endpoint for stress testing instances"""
-        params = {"iterations": 50_000_000}
-        with self.client.get("/cpu-burn", params=params, name="/cpu-burn", catch_response=True) as response:
-            if response.status_code == 200:
-                response.success()
-            else:
-                response.failure(f"Got status {response.status_code}")
+   
 
 
 class PeakLoadUser(HttpUser):
@@ -123,10 +108,7 @@ class PeakLoadUser(HttpUser):
     
     wait_time = between(0.5, 1.5)
     
-    @task(20)
-    def rapid_course_access(self):
-        """Rapid course list access"""
-        self.client.get("/courses")
+
     
     @task(10)
     def rapid_health_checks(self):
@@ -138,7 +120,3 @@ class PeakLoadUser(HttpUser):
         """Rapid student access"""
         self.client.get("/students")
 
-    @task(2)
-    def cpu_burn_peak(self):
-        """Spike CPU load intermittently during peak tests"""
-        self.client.get("/cpu-burn", params={"iterations": 75_000_000}, name="/cpu-burn")

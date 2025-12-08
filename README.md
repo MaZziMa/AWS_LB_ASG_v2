@@ -295,6 +295,43 @@ aws logs tail /aws/elasticloadbalancing/app/course-management-alb --follow
 aws logs tail /aws/ec2/course-management --follow
 ```
 
+## 🧠 Bedrock Knowledge Base (RAG) Demo
+
+This project includes a minimal scaffold to demo Amazon Bedrock Knowledge Bases for retrieval-augmented generation (RAG) applied to infrastructure/ops data (ALB/ASG logs).
+
+Quick steps:
+
+1. Upload documents/logs you want the KB to index to an S3 bucket (see `scripts/upload_to_s3_for_bedrock.py`). Example:
+
+```bash
+python scripts/upload_to_s3_for_bedrock.py --bucket my-bedrock-bucket --prefix bedrock/docs data/*.log
+```
+
+2. In the AWS Console, create a Bedrock Knowledge Base and point it to the S3 prefix you uploaded. Configure IAM role with permissions to read the S3 objects.
+
+3. Set environment variables on your local machine or instance:
+
+```bash
+export USE_BEDROCK=true
+export BEDROCK_KB_ID=your_kb_id_here
+```
+
+4. Start the FastAPI app and call the `/ops/ask` endpoint (the scaffold router is in `app/ops_bedrock.py`):
+
+```bash
+uvicorn app.main:app --reload
+
+# Example call (JSON body)
+curl -X POST http://localhost:8000/ops/ask -H 'Content-Type: application/json' \
+    -d '{"query":"Why did ASG scale out at 3PM?", "knowledge_base_id":"your_kb_id_here"}'
+```
+
+Notes:
+- The exact Bedrock API for retrieve-and-generate may vary by SDK version; the provided scaffold uses boto3 clients and attempts best-effort calls — adjust to match your boto3 version.
+- If you do not have Bedrock enabled, the endpoint will fallback to OpenAI if `OPENAI_API_KEY` is set.
+- Ensure the EC2 instance or role running this code has permissions to call Bedrock and read the S3 objects.
+
+
 ## 🔒 Security Best Practices
 
 - ✅ Security Groups với least privilege
