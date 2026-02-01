@@ -22,10 +22,10 @@ sudo "${APP_ROOT}/.venv/bin/pip" install -r "${APP_ROOT}/requirements.txt"
 
 cat <<'EOF' | sudo tee "${ENV_FILE}"
 AWS_REGION=us-east-1
-COURSES_TABLE=placeholder
-STUDENTS_TABLE=placeholder
-ENROLLMENTS_TABLE=placeholder
-APP_PORT=8000
+COURSES_TABLE=courses
+STUDENTS_TABLE=students
+ENROLLMENTS_TABLE=enrollments
+PORT=8000
 EOF
 
 sudo tee "${SERVICE_FILE}" > /dev/null <<'EOF'
@@ -40,6 +40,8 @@ WorkingDirectory=/opt/course-app
 EnvironmentFile=/etc/course-app.env
 Environment=PYTHONPATH=/opt/course-app
 ExecStart=/opt/course-app/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+StandardOutput=append:/var/log/course-app.log
+StandardError=append:/var/log/course-app.log
 Restart=always
 RestartSec=10
 
@@ -50,7 +52,10 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable course-app.service
 
+sudo touch /var/log/course-app.log
+
 sudo chown -R ec2-user:ec2-user "${APP_ROOT}"
+sudo chown ec2-user:ec2-user /var/log/course-app.log
 sudo rm -rf "${SRC_APP}" "${SRC_REQUIREMENTS}"
 sudo touch "${APP_ROOT}/.prebaked"
 

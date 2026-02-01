@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Backend origin (e.g. http://localhost:8000 or your ALB URL). If empty, use same-origin
+// and rely on Vite dev proxy.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -21,7 +23,7 @@ api.interceptors.response.use(
 
 // Courses API
 export const coursesAPI = {
-  getAll: () => api.get('/courses'),
+  getAll: (params) => api.get('/courses', { params }),
   getById: (id) => api.get(`/courses/${id}`),
   create: (data) => api.post('/courses', data),
   delete: (id) => api.delete(`/courses/${id}`)

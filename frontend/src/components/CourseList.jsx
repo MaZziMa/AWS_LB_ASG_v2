@@ -6,6 +6,11 @@ export default function CourseList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const PAGE_SIZE = 20;
+  const [cursor, setCursor] = useState(null);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [cursorStack, setCursorStack] = useState([]);
   const [formData, setFormData] = useState({
     course_id: '',
     title: '',
@@ -17,20 +22,53 @@ export default function CourseList() {
   });
 
   useEffect(() => {
-    fetchCourses();
+    fetchCourses(null);
   }, []);
 
-  const fetchCourses = async () => {
+  const fetchCourses = async (cursorOverride) => {
     try {
       setLoading(true);
-      const response = await coursesAPI.getAll();
+      const effectiveCursor = cursorOverride !== undefined ? cursorOverride : cursor;
+      const params = {
+        limit: PAGE_SIZE,
+      };
+
+      const trimmed = searchQuery.trim();
+      if (trimmed) params.q = trimmed;
+      if (effectiveCursor) params.cursor = effectiveCursor;
+
+      const response = await coursesAPI.getAll(params);
       setCourses(response.data.courses || []);
+      setNextCursor(response.data.next_cursor || null);
       setError(null);
     } catch (err) {
       setError('Failed to load courses: ' + err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async (e) => {
+    if (e) e.preventDefault();
+    setCursorStack([]);
+    setCursor(null);
+    await fetchCourses(null);
+  };
+
+  const handleNextPage = async () => {
+    if (!nextCursor) return;
+    setCursorStack((prev) => [...prev, cursor]);
+    setCursor(nextCursor);
+    await fetchCourses(nextCursor);
+  };
+
+  const handlePrevPage = async () => {
+    if (cursorStack.length === 0) return;
+    const newStack = [...cursorStack];
+    const prevCursor = newStack.pop() || null;
+    setCursorStack(newStack);
+    setCursor(prevCursor);
+    await fetchCourses(prevCursor);
   };
 
   const handleSubmit = async (e) => {
@@ -88,6 +126,45 @@ export default function CourseList() {
           {error}
         </div>
       )}
+
+      <form onSubmit={handleSearch} className="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
+          <input
+            type="text"
+            placeholder="Search by Title, Course ID, Instructor, Category"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border px-3 py-2 rounded w-full"
+          />
+          <button
+            type="submit"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+          >
+            Search
+          </button>
+        </div>
+        <div className="mt-3 flex items-center justify-between">
+          <div className="text-sm text-gray-600">Showing {courses.length} result(s) (max {PAGE_SIZE} per page)</div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handlePrevPage}
+              disabled={cursorStack.length === 0}
+              className="px-3 py-2 rounded border disabled:opacity-50"
+            >
+              Prev
+            </button>
+            <button
+              type="button"
+              onClick={handleNextPage}
+              disabled={!nextCursor}
+              className="px-3 py-2 rounded border disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </form>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md mb-6">

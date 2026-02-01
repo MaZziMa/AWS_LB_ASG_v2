@@ -1,0 +1,11 @@
+{
+  "messageVersion": "1.0",
+  "actionGroup": "devops-operations",
+  "apiPath": "/query_cloudwatch_logs",
+  "httpMethod": "GET",
+  "parameters": [
+    {"name": "minutes", "value": "15"},
+    {"name": "query", "value": "ERROR OR Exception OR Traceback"},
+    {"name": "limit", "value": "50"}
+  ]
+}

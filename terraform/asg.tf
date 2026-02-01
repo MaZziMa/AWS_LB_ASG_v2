@@ -54,13 +54,74 @@ resource "aws_iam_role_policy" "dynamodb_policy" {
           "dynamodb:Scan",
           "dynamodb:Query",
           "dynamodb:BatchGetItem",
-          "dynamodb:BatchWriteItem"
+          "dynamodb:BatchWriteItem",
+          "dynamodb:DescribeTable"
         ]
         Resource = [
           aws_dynamodb_table.courses.arn,
           aws_dynamodb_table.students.arn,
-          aws_dynamodb_table.enrollments.arn
+          aws_dynamodb_table.enrollments.arn,
+          "${aws_dynamodb_table.courses.arn}/index/*",
+          "${aws_dynamodb_table.students.arn}/index/*",
+          "${aws_dynamodb_table.enrollments.arn}/index/*"
         ]
+      }
+    ]
+  })
+}
+
+# IAM Policy for Bedrock Knowledge Base and Agent Runtime access
+resource "aws_iam_role_policy" "bedrock_policy" {
+  name = "${var.project_name}-bedrock-policy-${var.environment}"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream",
+          "bedrock:Retrieve",
+          "bedrock:RetrieveAndGenerate",
+          "bedrock:InvokeAgent"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeAutoScalingInstances",
+          "autoscaling:DescribeInstanceRefreshes",
+          "autoscaling:DescribeScalingActivities",
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DescribeTargetHealth",
+          "elasticloadbalancing:DescribeListeners",
+          "tag:GetResources"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeImages",
+          "ec2:DescribeImageAttribute"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:StartQuery",
+          "logs:GetQueryResults",
+          "logs:StopQuery",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams"
+        ]
+        Resource = "*"
       }
     ]
   })
@@ -81,7 +142,12 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 # Launch Template
 resource "aws_launch_template" "app" {
   name_prefix   = "${var.project_name}-lt-${var.environment}-"
-  image_id      = var.custom_ami_id != "" ? var.custom_ami_id : data.aws_ami.amazon_linux_2023.id
+
+  image_id = (
+    var.custom_ami_id != "" ? var.custom_ami_id : (
+      var.use_imagebuilder_ami && local.imagebuilder_ami_id != "" ? local.imagebuilder_ami_id : data.aws_ami.amazon_linux_2023.id
+    )
+  )
   instance_type = var.instance_type
 
   iam_instance_profile {
@@ -91,13 +157,21 @@ resource "aws_launch_template" "app" {
   vpc_security_group_ids = [aws_security_group.ec2.id]
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
-    aws_region        = var.aws_region
-    courses_table     = aws_dynamodb_table.courses.name
-    students_table    = aws_dynamodb_table.students.name
-    enrollments_table = aws_dynamodb_table.enrollments.name
-    app_port          = var.app_port
-    project_name      = var.project_name
-    environment       = var.environment
+    aws_region            = var.aws_region
+    courses_table         = aws_dynamodb_table.courses.name
+    students_table        = aws_dynamodb_table.students.name
+    enrollments_table     = aws_dynamodb_table.enrollments.name
+    app_port              = var.app_port
+    project_name          = var.project_name
+    environment           = var.environment
+    ops_asg_name           = "${var.project_name}-asg-${var.environment}"
+    ops_target_group_arn   = aws_lb_target_group.app.arn
+    ops_alb_arn            = aws_lb.main.arn
+    customer_agent_id     = "LJCIO6MTHB"
+    customer_agent_alias  = "IQQLSGF6X8"
+    ops_agent_id          = "CGWF5H93V2"
+    ops_agent_alias       = "WX8RSD82ZC"
+    enable_dynamodb       = "true"
   }))
 
   tag_specifications {
@@ -133,7 +207,21 @@ resource "aws_autoscaling_group" "app" {
 
   launch_template {
     id      = aws_launch_template.app.id
-    version = "$Latest"
+    # IMPORTANT: do not use "$Latest" here. When "$Latest" is used, Terraform cannot
+    # detect a version change and Instance Refresh will not auto-trigger.
+    version = aws_launch_template.app.latest_version
+  }
+
+  # Automatically roll the ASG whenever the Launch Template changes (e.g., new AMI).
+  # Note: Terraform starts the refresh but does not wait for completion.
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 90
+      max_healthy_percentage = 120
+      instance_warmup        = 120
+      auto_rollback          = true
+    }
   }
 
   tag {

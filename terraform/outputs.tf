@@ -42,3 +42,8 @@ output "application_url" {
   description = "URL to access the application"
   value       = "http://${aws_lb.main.dns_name}"
 }
+
+output "imagebuilder_ami_id" {
+  description = "AMI ID built by EC2 Image Builder (when use_imagebuilder_ami=true)"
+  value       = var.use_imagebuilder_ami ? local.imagebuilder_ami_id : null
+}

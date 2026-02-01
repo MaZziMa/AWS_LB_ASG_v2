@@ -1,0 +1,239 @@
+[
+  {
+    "program_id": "cntt-2026",
+    "program_code": "7480201",
+    "program_name": "Công nghệ thông tin",
+    "description": "Đào tạo kỹ sư CNTT với kiến thức lập trình, phát triển phần mềm, hệ thống mạng, AI, và an toàn thông tin",
+    "admission_methods": [
+      {
+        "method": "Xét học bạ THPT",
+        "requirement": "Điểm TB 3 học kỳ (10, 11, 12) >= 6.5",
+        "priority_subjects": ["Toán", "Lý", "Hóa"]
+      },
+      {
+        "method": "Xét điểm thi tốt nghiệp",
+        "requirement": "Tổ hợp A00 (Toán, Lý, Hóa) >= 18 điểm",
+        "note": "Hoặc tổ hợp A01, D01"
+      },
+      {
+        "method": "Xét chứng chỉ quốc tế",
+        "requirement": "SAT >= 1100, IELTS >= 5.5",
+        "note": "Ưu tiên xét sớm"
+      }
+    ],
+    "scholarships": [
+      {
+        "type": "Học bổng tuyển sinh",
+        "amount": "25-50%",
+        "criteria": "Top 10% điểm xét tuyển hoặc điểm TB học bạ >= 8.5",
+        "duration": "4 năm (nếu duy trì GPA >= 3.2)"
+      },
+      {
+        "type": "Học bổng năng lực",
+        "amount": "100% (toàn phần)",
+        "criteria": "Thi vòng năng lực HUTECH",
+        "exam_date": "2026-06-15",
+        "note": "Giới hạn 20 suất/ngành"
+      },
+      {
+        "type": "Học bổng doanh nghiệp",
+        "amount": "50% + thực tập có lương",
+        "criteria": "Cam kết làm việc 2 năm sau tốt nghiệp",
+        "partners": ["FPT", "Viettel", "MISA"]
+      }
+    ],
+    "documents": [
+      "Bản sao công chứng học bạ THPT (hoặc bằng tốt nghiệp)",
+      "Bản sao CMND/CCCD",
+      "Phiếu đăng ký xét tuyển (online hoặc trực tiếp)",
+      "Ảnh 3x4 (4 ảnh)",
+      "Giấy chứng nhận ưu tiên (nếu có)"
+    ],
+    "deadlines": [
+      {
+        "batch": 1,
+        "name": "Đợt chính",
+        "start_date": "2026-04-01",
+        "end_date": "2026-06-30",
+        "note": "Ưu tiên xét học bổng"
+      },
+      {
+        "batch": 2,
+        "name": "Đợt bổ sung",
+        "start_date": "2026-07-01",
+        "end_date": "2026-08-31",
+        "note": "Hết học bổng tuyển sinh"
+      }
+    ],
+    "tuition_fee": "22.000.000 VNĐ/năm",
+    "tuition_payment": "Chia 2 đợt: 11 triệu/học kỳ. Hỗ trợ trả góp qua VNPAY",
+    "duration": "4 năm (8 học kỳ)",
+    "career_prospects": [
+      "Lập trình viên (Web/Mobile/AI)",
+      "Kỹ sư phần mềm",
+      "Data Scientist/Engineer",
+      "DevOps Engineer",
+      "Security Engineer",
+      "Product Manager (Tech)"
+    ],
+    "key_subjects": [
+      "Lập trình Python/Java/C++",
+      "Cấu trúc dữ liệu & giải thuật",
+      "Cơ sở dữ liệu",
+      "Mạng máy tính",
+      "Trí tuệ nhân tạo",
+      "An toàn thông tin"
+    ],
+    "admission_score_range": "18-24 điểm (tổ hợp A00)",
+    "registration_url": "https://tuyensinh.hutech.edu.vn/dang-ky?major=cntt",
+    "consultation_url": "https://calendly.com/hutech-cntt",
+    "contact_info": {
+      "hotline": "028 5445 5555",
+      "email": "tuyensinh@hutech.edu.vn",
+      "facebook": "https://facebook.com/tuyensinh.hutech",
+      "zalo": "0909123456"
+    },
+    "last_updated": "2025-12-20"
+  },
+  {
+    "program_id": "ai-2026",
+    "program_code": "7480107",
+    "program_name": "Trí tuệ nhân tạo",
+    "description": "Chương trình tiên tiến về AI, Machine Learning, Deep Learning, Computer Vision, NLP",
+    "admission_methods": [
+      {
+        "method": "Xét học bạ THPT",
+        "requirement": "Điểm TB 3 học kỳ >= 7.0 (ưu tiên Toán, Lý)",
+        "priority_subjects": ["Toán", "Lý", "Anh"]
+      },
+      {
+        "method": "Xét điểm thi tốt nghiệp",
+        "requirement": "Tổ hợp A00/A01 >= 20 điểm",
+        "note": "Ngành mới, điểm chuẩn cao"
+      }
+    ],
+    "scholarships": [
+      {
+        "type": "Học bổng tuyển sinh",
+        "amount": "50-100%",
+        "criteria": "Top 5% điểm xét tuyển",
+        "duration": "4 năm"
+      },
+      {
+        "type": "Học bổng VinAI",
+        "amount": "100% + laptop AI",
+        "criteria": "Thi tuyển riêng (coding + interview)",
+        "slots": 10
+      }
+    ],
+    "documents": [
+      "Bản sao công chứng học bạ THPT",
+      "Bản sao CMND/CCCD",
+      "Phiếu đăng ký xét tuyển",
+      "Ảnh 3x4 (4 ảnh)",
+      "Portfolio (nếu có: project AI, Kaggle ranking...)"
+    ],
+    "deadlines": [
+      {
+        "batch": 1,
+        "name": "Đợt chính",
+        "start_date": "2026-04-01",
+        "end_date": "2026-08-15",
+        "note": "Deadline muộn hơn CNTT do ngành mới"
+      }
+    ],
+    "tuition_fee": "25.000.000 VNĐ/năm",
+    "tuition_payment": "Chia 2 đợt: 12.5 triệu/học kỳ",
+    "duration": "4 năm",
+    "career_prospects": [
+      "AI Engineer",
+      "Machine Learning Engineer",
+      "Data Scientist (AI focus)",
+      "Computer Vision Engineer",
+      "NLP Engineer",
+      "AI Researcher"
+    ],
+    "key_subjects": [
+      "Machine Learning",
+      "Deep Learning",
+      "Computer Vision",
+      "Natural Language Processing",
+      "Reinforcement Learning",
+      "AI Ethics & Safety"
+    ],
+    "admission_score_range": "20-24 điểm (tổ hợp A00)",
+    "registration_url": "https://tuyensinh.hutech.edu.vn/dang-ky?major=ai",
+    "consultation_url": "https://calendly.com/hutech-ai",
+    "contact_info": {
+      "hotline": "028 5445 5555",
+      "email": "tuyensinh@hutech.edu.vn"
+    },
+    "last_updated": "2025-12-20"
+  },
+  {
+    "program_id": "ds-2026",
+    "program_code": "7340408",
+    "program_name": "Khoa học dữ liệu",
+    "description": "Đào tạo chuyên gia phân tích dữ liệu, xây dựng hệ thống Big Data, BI, Data Analytics",
+    "admission_methods": [
+      {
+        "method": "Xét học bạ THPT",
+        "requirement": "Điểm TB >= 6.5",
+        "priority_subjects": ["Toán", "Lý", "Anh"]
+      },
+      {
+        "method": "Xét điểm thi tốt nghiệp",
+        "requirement": "Tổ hợp A00/A01/D01 >= 18 điểm"
+      }
+    ],
+    "scholarships": [
+      {
+        "type": "Học bổng tuyển sinh",
+        "amount": "25-50%",
+        "criteria": "Top 10% điểm xét tuyển"
+      }
+    ],
+    "documents": [
+      "Bản sao công chứng học bạ THPT",
+      "Bản sao CMND/CCCD",
+      "Phiếu đăng ký xét tuyển",
+      "Ảnh 3x4 (4 ảnh)"
+    ],
+    "deadlines": [
+      {
+        "batch": 1,
+        "start_date": "2026-04-01",
+        "end_date": "2026-06-30"
+      },
+      {
+        "batch": 2,
+        "start_date": "2026-07-01",
+        "end_date": "2026-08-31"
+      }
+    ],
+    "tuition_fee": "22.000.000 VNĐ/năm",
+    "duration": "4 năm",
+    "career_prospects": [
+      "Data Analyst",
+      "Data Engineer",
+      "Business Intelligence Analyst",
+      "Big Data Engineer",
+      "Data Scientist"
+    ],
+    "key_subjects": [
+      "Statistics & Probability",
+      "SQL & Database",
+      "Python for Data Science",
+      "Machine Learning",
+      "Big Data (Hadoop/Spark)",
+      "Data Visualization"
+    ],
+    "admission_score_range": "18-23 điểm",
+    "registration_url": "https://tuyensinh.hutech.edu.vn/dang-ky?major=ds",
+    "contact_info": {
+      "hotline": "028 5445 5555",
+      "email": "tuyensinh@hutech.edu.vn"
+    },
+    "last_updated": "2025-12-20"
+  }
+]

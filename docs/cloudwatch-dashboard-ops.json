@@ -1,0 +1,70 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "region": "${AWS::Region}",
+        "title": "ALB 5xx & Target Health",
+        "metrics": [
+          [ "AWS/ApplicationELB", "HTTPCode_ELB_5XX_Count", "LoadBalancer", "${ALBName}", { "stat": "Sum" } ],
+          [ "AWS/ApplicationELB", "UnHealthyHostCount", "TargetGroup", "${TargetGroupName}", "LoadBalancer", "${ALBName}", { "stat": "Average", "yAxis": "right" } ]
+        ],
+        "period": 60,
+        "stacked": false,
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "region": "${AWS::Region}",
+        "title": "ASG Desired vs InService",
+        "metrics": [
+          [ "AWS/AutoScaling", "GroupDesiredCapacity", "AutoScalingGroupName", "${ASGName}", { "stat": "Average" } ],
+          [ ".", "GroupInServiceInstances", ".", ".", { "stat": "Average" } ]
+        ],
+        "period": 60,
+        "stacked": false,
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "region": "${AWS::Region}",
+        "title": "DynamoDB Throttles & Latency",
+        "metrics": [
+          [ "AWS/DynamoDB", "ReadThrottleEvents", "TableName", "${DynamoTable}", { "stat": "Sum" } ],
+          [ "AWS/DynamoDB", "WriteThrottleEvents", "TableName", "${DynamoTable}", { "stat": "Sum" } ],
+          [ ".", "SuccessfulRequestLatency", ".", ".", { "stat": "Average", "yAxis": "right" } ]
+        ],
+        "period": 60,
+        "stacked": false,
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "region": "${AWS::Region}",
+        "title": "DynamoDB Consumed vs Provisioned",
+        "metrics": [
+          [ "AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", "${DynamoTable}", { "stat": "Sum" } ],
+          [ "AWS/DynamoDB", "ProvisionedReadCapacityUnits", "TableName", "${DynamoTable}", { "stat": "Average" } ],
+          [ "AWS/DynamoDB", "ConsumedWriteCapacityUnits", "TableName", "${DynamoTable}", { "stat": "Sum" } ],
+          [ "AWS/DynamoDB", "ProvisionedWriteCapacityUnits", "TableName", "${DynamoTable}", { "stat": "Average" } ]
+        ],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    }
+  ]
+}

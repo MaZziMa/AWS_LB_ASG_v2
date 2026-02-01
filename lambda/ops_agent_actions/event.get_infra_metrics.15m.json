@@ -1,0 +1,10 @@
+{
+  "messageVersion": "1.0",
+  "actionGroup": "devops-operations",
+  "apiPath": "/get_infra_metrics",
+  "httpMethod": "GET",
+  "parameters": [
+    {"name": "minutes", "value": "15"},
+    {"name": "period_seconds", "value": "60"}
+  ]
+}

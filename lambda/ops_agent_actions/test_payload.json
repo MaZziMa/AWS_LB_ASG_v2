@@ -1,0 +1,14 @@
+{
+  "actionGroup": "ops_actions",
+  "function": "get_latest_http_5xx",
+  "parameters": [
+    {
+      "name": "minutes",
+      "value": "180"
+    },
+    {
+      "name": "limit",
+      "value": "20"
+    }
+  ]
+}

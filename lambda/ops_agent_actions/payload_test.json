@@ -1,0 +1,16 @@
+﻿{
+    "function":  "get_latest_http_5xx",
+    "actionGroup":  "devops-operations",
+    "parameters":  [
+                       {
+                           "name":  "minutes",
+                           "value":  "300",
+                           "type":  "integer"
+                       },
+                       {
+                           "name":  "limit",
+                           "value":  "20",
+                           "type":  "integer"
+                       }
+                   ]
+}

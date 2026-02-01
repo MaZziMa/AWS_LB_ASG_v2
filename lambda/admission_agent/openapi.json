@@ -1,0 +1,152 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "HUTECH Admission Agent API",
+    "version": "1.0.0",
+    "description": "API cho trợ lý tư vấn tuyển sinh HUTECH - hỗ trợ tra cứu thông tin ngành học, điều kiện tuyển sinh, học bổng"
+  },
+  "paths": {
+    "/get_program_admission_info": {
+      "post": {
+        "summary": "Lấy thông tin tuyển sinh chi tiết của 1 ngành học",
+        "description": "Trả về đầy đủ thông tin: điều kiện tuyển, học bổng, học phí, deadline, hồ sơ cần thiết",
+        "operationId": "get_program_admission_info",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "program_name": {
+                    "type": "string",
+                    "description": "Tên ngành học (VD: Công nghệ thông tin, Trí tuệ nhân tạo, Khoa học dữ liệu)"
+                  }
+                },
+                "required": ["program_name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {"type": "integer"},
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "program_name": {"type": "string"},
+                        "program_code": {"type": "string"},
+                        "description": {"type": "string"},
+                        "admission_methods": {"type": "array"},
+                        "scholarships": {"type": "array"},
+                        "documents_required": {"type": "array"},
+                        "deadlines": {"type": "array"},
+                        "tuition_fee": {"type": "string"},
+                        "registration_url": {"type": "string"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compare_programs": {
+      "post": {
+        "summary": "So sánh 2 ngành học",
+        "description": "So sánh về điều kiện tuyển, học phí, cơ hội nghề nghiệp, môn học chính",
+        "operationId": "compare_programs",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "program1": {
+                    "type": "string",
+                    "description": "Tên ngành học thứ nhất"
+                  },
+                  "program2": {
+                    "type": "string",
+                    "description": "Tên ngành học thứ hai"
+                  }
+                },
+                "required": ["program1", "program2"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bảng so sánh chi tiết"
+          }
+        }
+      }
+    },
+    "/get_registration_links": {
+      "post": {
+        "summary": "Lấy link đăng ký tuyển sinh và đặt lịch tư vấn",
+        "description": "Trả về URL đăng ký, đặt lịch tư vấn, hotline, email",
+        "operationId": "get_registration_links",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "program_name": {
+                    "type": "string",
+                    "description": "Tên ngành học (optional - nếu bỏ trống trả về link chung)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Links và contact info"
+          }
+        }
+      }
+    },
+    "/search_scholarship_info": {
+      "post": {
+        "summary": "Tìm kiếm thông tin học bổng",
+        "description": "Lọc học bổng theo loại: tuyển sinh, năng lực, doanh nghiệp",
+        "operationId": "search_scholarship_info",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scholarship_type": {
+                    "type": "string",
+                    "description": "Loại học bổng: tuyển sinh, năng lực, doanh nghiệp (optional)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Danh sách học bổng"
+          }
+        }
+      }
+    }
+  }
+}

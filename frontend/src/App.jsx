@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import CourseList from './components/CourseList';
 import StudentList from './components/StudentList';
 import EnrollmentList from './components/EnrollmentList';
+import KnowledgeBase from './components/KnowledgeBase';
 import './index.css';
 
 function Navigation() {
@@ -13,7 +14,8 @@ function Navigation() {
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/courses', label: 'Courses', icon: '📚' },
     { path: '/students', label: 'Students', icon: '👨‍🎓' },
-    { path: '/enrollments', label: 'Enrollments', icon: '📝' }
+    { path: '/enrollments', label: 'Enrollments', icon: '📝' },
+    { path: '/kb', label: 'Ask AI', icon: '🤖' }
   ];
 
   return (
@@ -56,6 +58,7 @@ function App() {
             <Route path="/courses" element={<CourseList />} />
             <Route path="/students" element={<StudentList />} />
             <Route path="/enrollments" element={<EnrollmentList />} />
+            <Route path="/kb" element={<KnowledgeBase />} />
           </Routes>
         </main>
         <footer className="bg-white border-t mt-12">

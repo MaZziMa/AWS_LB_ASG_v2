@@ -1,0 +1,140 @@
+################################################################################
+# Bedrock Agent for Course Management with Knowledge Base
+################################################################################
+
+# IAM Role for Bedrock Agent
+resource "aws_iam_role" "bedrock_agent_role" {
+  name = "bedrock-agent-role-${var.environment}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "bedrock.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# IAM Policy for Bedrock Agent - KB + Model access
+resource "aws_iam_role_policy" "bedrock_agent_policy" {
+  name = "bedrock-agent-policy-${var.environment}"
+  role = aws_iam_role.bedrock_agent_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      # Bedrock Models
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = [
+          "arn:aws:bedrock:${var.aws_region}::foundation-model/*",
+          "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:inference-profile/*"
+        ]
+      },
+      # Knowledge Base Retrieve
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:Retrieve",
+          "bedrock:RetrieveAndGenerate"
+        ]
+        Resource = "*"
+      },
+      # Knowledge Base Agent
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:GetAgent",
+          "bedrock:GetAgentAlias"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Bedrock Agent
+resource "aws_bedrock_agent" "course_chatbot" {
+  agent_name              = "course-management-agent-${var.environment}"
+  agent_resource_role_arn = aws_iam_role.bedrock_agent_role.arn
+  
+  idle_session_ttl_in_seconds = 1800  # 30 minutes
+  
+  instruction = <<-EOT
+You are a helpful course management assistant for students and staff.
+
+Your primary responsibilities:
+1. Help students with course enrollment, requirements, and schedules
+2. Answer questions about course content, prerequisites, and availability
+3. Provide information on payment, financial aid, and refund policies
+4. Assist operations staff with course administration tasks
+
+Always be helpful, professional, and accurate. If you cannot find information in the knowledge base, 
+suggest the user contact support at support@coursemanagement.edu.
+
+Format responses clearly with proper sections when needed.
+  EOT
+
+  prompt_override_configuration {
+    prompt_state = "ENABLED"
+
+    pre_processing_prompt = <<-EOT
+You are a course management assistant. Before retrieving information:
+1. Understand the user's intent (enrollment, information, troubleshooting)
+2. Identify relevant keywords and topics
+3. Prepare to search the knowledge base effectively
+    EOT
+
+    orchestration_prompt = <<-EOT
+You have access to a course management knowledge base. Use it to:
+1. Search for relevant course information
+2. Find enrollment procedures and requirements
+3. Answer student and staff questions
+4. Provide accurate, helpful responses
+
+Always cite the source information when available.
+    EOT
+  }
+
+  depends_on = [aws_iam_role_policy.bedrock_agent_policy]
+}
+
+# Agent Alias for easy management
+resource "aws_bedrock_agent_alias" "course_chatbot_dev" {
+  agent_alias_name = "dev"
+  agent_id         = aws_bedrock_agent.course_chatbot.agent_id
+  
+  routing_bot_alias_settings {
+    bot_alias_id = "XXXXXX"  # Optional: for multi-routing
+  }
+
+  depends_on = [aws_bedrock_agent.course_chatbot]
+}
+
+# Outputs
+output "bedrock_agent_id" {
+  description = "Bedrock Agent ID"
+  value       = aws_bedrock_agent.course_chatbot.agent_id
+}
+
+output "bedrock_agent_arn" {
+  description = "Bedrock Agent ARN"
+  value       = aws_bedrock_agent.course_chatbot.agent_arn
+}
+
+output "bedrock_agent_alias_id" {
+  description = "Bedrock Agent Alias ID"
+  value       = aws_bedrock_agent_alias.course_chatbot_dev.agent_alias_id
+}
+
+# Data source for current AWS account
+data "aws_caller_identity" "current" {}

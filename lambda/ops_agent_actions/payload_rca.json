@@ -1,0 +1,11 @@
+﻿{
+    "function":  "get_5xx_root_cause_analysis",
+    "actionGroup":  "devops-operations",
+    "parameters":  [
+                       {
+                           "name":  "minutes",
+                           "value":  "120",
+                           "type":  "integer"
+                       }
+                   ]
+}

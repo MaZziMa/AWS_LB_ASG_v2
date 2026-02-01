@@ -3,6 +3,7 @@ fastapi
 uvicorn[standard]
 boto3
 httpx
+python-json-logger
 
 # Testing
 pytest

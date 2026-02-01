@@ -1,0 +1,366 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "DevOps Operations API",
+    "description": "API for DevOps operations including infrastructure monitoring, DynamoDB metrics, and deployment management",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/get_infrastructure_snapshot": {
+      "get": {
+        "operationId": "get_infrastructure_snapshot",
+        "summary": "Get real-time infrastructure snapshot",
+        "description": "Retrieves current status of AWS infrastructure including Auto Scaling Group (ASG), Application Load Balancer (ALB), Target Group, instance refresh status, and recent scaling activities. Use this to check infrastructure health, verify deployments, or troubleshoot issues.",
+        "parameters": [
+          {
+            "name": "asg_name",
+            "in": "query",
+            "description": "Auto Scaling Group name. If not provided, uses default from environment.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_scaling_activities",
+            "in": "query",
+            "description": "Whether to include recent scaling activities in the response",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Infrastructure snapshot with ASG, ALB, Target Group status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {"type": "string"},
+                    "region": {"type": "string"},
+                    "asg": {"type": "object"},
+                    "alb": {"type": "object"},
+                    "target_group": {"type": "object"},
+                    "instance_refresh": {"type": "object"},
+                    "scaling_activities": {"type": "array"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query_cloudwatch_logs": {
+      "get": {
+        "operationId": "query_cloudwatch_logs",
+        "summary": "Query CloudWatch Logs Insights",
+        "description": "Runs a CloudWatch Logs Insights query across one or more log groups to help with incident RCA (e.g., finding exceptions around 5xx windows).",
+        "parameters": [
+          {
+            "name": "log_group_names",
+            "in": "query",
+            "description": "Comma-separated CloudWatch log group names to query. IMPORTANT: omit this parameter to use Lambda default log groups from OPS_LOG_GROUPS (do NOT pass the literal string 'OPS_LOG_GROUPS').",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "minutes",
+            "in": "query",
+            "description": "Lookback window in minutes",
+            "required": false,
+            "schema": { "type": "integer", "default": 15 }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "description": "CloudWatch Logs Insights query string (pipe syntax). If omitted, Lambda uses a safe default that filters ERROR/Exception/Traceback/5xx.",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of rows",
+            "required": false,
+            "schema": { "type": "integer", "default": 50 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logs Insights query output",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_infra_metrics": {
+      "get": {
+        "operationId": "get_infra_metrics",
+        "summary": "Get ALB/TargetGroup CloudWatch metrics",
+        "description": "Fetches CloudWatch metrics for ALB and Target Group (5xx counts, request count, latency, healthy/unhealthy hosts) for a recent time window.",
+        "parameters": [
+          {
+            "name": "minutes",
+            "in": "query",
+            "description": "Lookback window in minutes",
+            "required": false,
+            "schema": { "type": "integer", "default": 15 }
+          },
+          {
+            "name": "period_seconds",
+            "in": "query",
+            "description": "Metric granularity in seconds (min 60)",
+            "required": false,
+            "schema": { "type": "integer", "default": 60 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metrics time series and summaries",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_cloudwatch_alarms": {
+      "get": {
+        "operationId": "get_cloudwatch_alarms",
+        "summary": "Get CloudWatch alarms status",
+        "description": "Lists CloudWatch alarms and their current state (ALARM/OK/INSUFFICIENT_DATA). Critical for incident detection and monitoring system health. Use this to check if any alarms are firing.",
+        "parameters": [
+          {
+            "name": "alarm_name_prefix",
+            "in": "query",
+            "description": "Filter alarms by name prefix (e.g., 'course-management'). If omitted, returns all alarms.",
+            "required": false,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "state_filter",
+            "in": "query",
+            "description": "Filter by alarm state: ALARM, OK, or INSUFFICIENT_DATA. If omitted, returns all states.",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of alarms with their current state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {"type": "string"},
+                    "alarms": {"type": "array"},
+                    "summary": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_baseline_check_all": {
+      "get": {
+        "operationId": "get_baseline_check_all",
+        "summary": "Get comprehensive baseline check of entire system",
+        "description": "One-stop tool for baseline system health check. Internally calls get_infrastructure_snapshot, get_cloudwatch_alarms, get_infra_metrics, and get_dynamodb_metrics, then aggregates results. Use this when user asks for 'baseline check toàn bộ hệ thống' or 'full system status'. Returns overall_health status and issues list.",
+        "parameters": [
+          {
+            "name": "minutes",
+            "in": "query",
+            "description": "Time window in minutes for metrics (default 15)",
+            "required": false,
+            "schema": { "type": "integer", "default": 15 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated baseline check with infrastructure, alarms, metrics, and DynamoDB status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {"type": "string"},
+                    "window_minutes": {"type": "integer"},
+                    "infrastructure": {"type": "object"},
+                    "alarms": {"type": "object"},
+                    "metrics": {"type": "object"},
+                    "dynamodb": {"type": "object"},
+                    "overall_health": {"type": "string"},
+                    "issues": {"type": "array"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plan_instance_refresh": {
+      "get": {
+        "operationId": "plan_instance_refresh",
+        "summary": "Plan ASG instance refresh with validation (dry run)",
+        "description": "Creates a plan for ASG instance refresh with REAL validation: checks current ASG state, ongoing refreshes, healthy instance count, and calculates impact/risks. Safe to call - does not make any changes. Returns validation results and risk assessment.",
+        "parameters": [
+          {
+            "name": "asg_name",
+            "in": "query",
+            "description": "Auto Scaling Group name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_healthy_percentage",
+            "in": "query",
+            "description": "Minimum percentage of healthy instances to maintain during refresh",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 90
+            }
+          },
+          {
+            "name": "instance_warmup",
+            "in": "query",
+            "description": "Seconds to wait after instance launch before considering it healthy",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 60
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instance refresh plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/execute_instance_refresh": {
+      "post": {
+        "operationId": "execute_instance_refresh",
+        "summary": "Execute ASG instance refresh",
+        "description": "Starts an ASG instance refresh (rolling deployment). WARNING: This will terminate and replace instances. Use plan_instance_refresh first to preview. Only call when user explicitly confirms they want to execute.",
+        "parameters": [
+          {
+            "name": "asg_name",
+            "in": "query",
+            "description": "Auto Scaling Group name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "min_healthy_percentage",
+            "in": "query",
+            "description": "Minimum percentage of healthy instances to maintain",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 90
+            }
+          },
+          {
+            "name": "instance_warmup",
+            "in": "query",
+            "description": "Seconds to wait after instance launch",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 60
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instance refresh execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get_5xx_root_cause_analysis": {
+      "get": {
+        "operationId": "get_5xx_root_cause_analysis",
+        "summary": "Phân tích nguyên nhân lỗi 5xx (Smart RCA)",
+        "description": "TÌM VÀ PHÂN TÍCH TỰ ĐỘNG nguyên nhân lỗi 5xx. Đây là tool THÔNG MINH nhất - tự động: (1) Tìm lỗi 5xx gần nhất, (2) Giải thích ý nghĩa mã lỗi, (3) Kiểm tra trạng thái infrastructure (ASG, Target Group), (4) Xác định nguyên nhân cụ thể, (5) Đề xuất cách khắc phục. Dùng khi user hỏi: 'Tại sao có lỗi 500/502/503/504?', 'Phân tích lỗi 5xx', 'Nguyên nhân lỗi server?', 'RCA lỗi 5xx'.",
+        "parameters": [
+          {
+            "name": "minutes",
+            "in": "query",
+            "description": "Khoảng thời gian tìm kiếm (phút). Mặc định 60 phút.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 60
+            }
+          },
+          {
+            "name": "include_infra_check",
+            "in": "query",
+            "description": "Có kiểm tra infrastructure (ASG, Target Group) không. Mặc định true.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kết quả phân tích RCA bao gồm: error_details, root_cause_analysis, infrastructure_state, recommendations, summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_found": {"type": "boolean", "description": "Có tìm thấy lỗi 5xx không"},
+                    "error_details": {"type": "object", "description": "Chi tiết lỗi: timestamp, status_code, method, path, latency_ms"},
+                    "root_cause_analysis": {"type": "object", "description": "Phân tích nguyên nhân: error_type, explanation, likely_cause, source, severity"},
+                    "infrastructure_state": {"type": "object", "description": "Trạng thái infrastructure: ASG health, Target Group health, instance refresh"},
+                    "recommendations": {"type": "array", "description": "Danh sách các bước khắc phục được đề xuất"},
+                    "summary": {"type": "string", "description": "Tóm tắt RCA bằng tiếng Việt"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

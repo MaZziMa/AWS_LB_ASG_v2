@@ -32,26 +32,36 @@ def test_root_endpoint():
     data = response.json()
     assert data["message"] == "Course Management System API"
     assert "endpoints" in data
-    assert data["version"] == "1.0.0"
+    assert data["version"] == os.getenv("APP_VERSION", "1.0.0")
+
+
+def test_version_endpoint():
+    """Test /version endpoint"""
+    response = client.get("/version")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["app_version"] == os.getenv("APP_VERSION", "1.0.0")
+    assert "instance_id" in data
+    assert "timestamp" in data
 
 
 def test_get_courses_endpoint_exists():
     """Test that courses endpoint exists"""
     response = client.get("/courses")
-    # Should return 200 or 500 (if DynamoDB not configured in test)
-    assert response.status_code in [200, 500]
+    # Should return 200, 500 (unexpected error), or 501 when backing store is disabled
+    assert response.status_code in [200, 500, 501]
 
 
 def test_get_students_endpoint_exists():
     """Test that students endpoint exists"""
     response = client.get("/students")
-    assert response.status_code in [200, 500]
+    assert response.status_code in [200, 500, 501]
 
 
 def test_get_enrollments_endpoint_exists():
     """Test that enrollments endpoint exists"""
     response = client.get("/enrollments")
-    assert response.status_code in [200, 500]
+    assert response.status_code in [200, 500, 501]
 
 
 def test_api_documentation():

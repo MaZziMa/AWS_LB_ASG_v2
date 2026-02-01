@@ -81,3 +81,21 @@ variable "custom_ami_id" {
   type        = string
   default     = ""
 }
+
+variable "use_imagebuilder_ami" {
+  description = "When true, Terraform will build a new AMI via EC2 Image Builder and use it in the launch template (unless custom_ami_id is set)."
+  type        = bool
+  default     = false
+}
+
+variable "imagebuilder_version" {
+  description = "Version for Image Builder resources/recipe. Bump this to force a new AMI build."
+  type        = string
+  default     = "1.0.0"
+}
+
+variable "imagebuilder_instance_type" {
+  description = "Instance type used by the Image Builder build instance."
+  type        = string
+  default     = "t3.micro"
+}

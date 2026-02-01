@@ -9,26 +9,6 @@ packer {
   }
 }
 
-variable "aws_region" {
-  type    = string
-  default = "us-east-1"
-}
-
-variable "environment" {
-  type    = string
-  default = "dev"
-}
-
-variable "project_name" {
-  type    = string
-  default = "course-management"
-}
-
-variable "instance_type" {
-  type    = string
-  default = "t3.micro"
-}
-
 locals {
   timestamp = formatdate("YYYYMMDDhhmmss", timestamp())
   ami_name  = "${var.project_name}-${var.environment}-${local.timestamp}"
@@ -41,6 +21,10 @@ source "amazon-ebs" "course_app" {
   ami_name                = local.ami_name
   ami_description         = "${var.project_name} FastAPI backend prebaked for ${var.environment}"
   associate_public_ip_address = true
+
+  subnet_id               = var.subnet_id
+  vpc_id                  = var.vpc_id
+  security_group_id       = var.security_group_id
 
   source_ami_filter {
     filters = {
@@ -63,6 +47,8 @@ source "amazon-ebs" "course_app" {
     Name        = local.ami_name
     Project     = var.project_name
     Environment = var.environment
+    ManagedBy   = "packer"
+    Component   = "backend"
   }
 }
 

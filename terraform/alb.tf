@@ -79,6 +79,13 @@ resource "aws_lb" "main" {
   enable_deletion_protection = false
   enable_http2              = true
 
+  # Access logs configuration (bucket defined in alb_access_logs.tf)
+  access_logs {
+    bucket  = aws_s3_bucket.alb_logs.id
+    prefix  = "alb-logs"
+    enabled = true
+  }
+
   tags = {
     Name = "${var.project_name}-alb-${var.environment}"
   }
