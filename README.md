@@ -295,7 +295,7 @@ aws logs tail /aws/elasticloadbalancing/app/course-management-alb --follow
 aws logs tail /aws/ec2/course-management --follow
 ```
 
-## 🧠 Bedrock Knowledge Base (RAG) Demo
+## 🧠 Bedrock Knowledge Base (RAG)
 
 This project includes a minimal scaffold to demo Amazon Bedrock Knowledge Bases for retrieval-augmented generation (RAG) applied to infrastructure/ops data (ALB/ASG logs).
 
@@ -392,30 +392,3 @@ aws iam get-role-policy --role-name course-management-ec2-role --policy-name dyn
 - [DynamoDB Developer Guide](https://docs.aws.amazon.com/dynamodb/index.html)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👤 Author
-
-Your Name - [@yourhandle](https://github.com/yourhandle)
-
-## 🙏 Acknowledgments
-
-- AWS Documentation
-- FastAPI Community
-- Terraform Community
-- GitHub Actions
-
----
-
-**⭐ Nếu project này hữu ích, hãy cho một star nhé!**
